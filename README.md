@@ -7,6 +7,10 @@ It includes a build of docker-compose working on alpine as well.
 GitHub Repository: https://github.com/trion-development/docker-jenkins-docker-client
 
 ## Docker Socket integration
+## install docker compose
+
+curl -L "https://github.com/docker/compose/releases/download/v2.20.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/bin/docker-compose && \
+chmod +x /usr/bin/docker-compose
 
 If a bind-mount of the docker daemon socket is detected, appropriate permissions will be set to allow jenkins to access docker via the socket.
 In order for this to work the container must be run as `root`.

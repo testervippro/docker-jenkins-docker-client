@@ -58,6 +58,9 @@ COPY --from=cmps /usr/local/bin/docker-compose /usr/bin/docker-compose
 RUN  \
   curl https://download.docker.com/linux/static/stable/x86_64/docker-20.10.17.tgz | tar xvz -C /tmp/ && \
   mv /tmp/docker/docker /usr/bin/docker
-
+  
+# Install Docker Compose
+RUN curl -L "https://github.com/docker/compose/releases/download/v2.20.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/bin/docker-compose && \
+  chmod +x /usr/bin/docker-compose
 COPY plugins.txt config.yaml /provisioning/
 COPY entrypoint.sh /usr/local/bin/
