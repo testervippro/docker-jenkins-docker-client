@@ -9,8 +9,7 @@ GitHub Repository: https://github.com/trion-development/docker-jenkins-docker-cl
 ## Docker Socket integration
 ## install docker compose
 
-curl -L "https://github.com/docker/compose/releases/download/v2.20.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/bin/docker-compose && \
-chmod +x /usr/bin/docker-compose
+
 
 If a bind-mount of the docker daemon socket is detected, appropriate permissions will be set to allow jenkins to access docker via the socket.
 In order for this to work the container must be run as `root`.
@@ -36,9 +35,23 @@ Plugins to be installed can be added to a textfile and mounted to `/provisioning
 The following plugins should be provided
 
 ```
-authorize-project:latest
-configuration-as-code:latest
-role-strategy:latest
+docker run -d \
+  -e JENKINS_LOCATION=http://localhost:8080 \
+  -e JENKINS_CASC=/provisioning/config.yaml \
+  -e JENKINS_USER=$(id -u) \
+  -e JENKINS_CAC=true \
+  -p 8080:8080 \
+  -p 60000:60000 \
+  -v /Users/mac/Documents/jenkins02:/var/jenkins_home \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v ./config.yaml:/provisioning/config.yaml \
+  -v ./plugins.txt:/provisioning/plugins.txt \
+  --shm-size=4gb \
+  --privileged \
+  --add-host="host.docker.internal:host-gateway" \
+  --user=root \
+  jenkin02
+
 ```
 
 More details: https://plugins.jenkins.io/configuration-as-code/
