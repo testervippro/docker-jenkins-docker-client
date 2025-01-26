@@ -1,4 +1,8 @@
-# Jenkins Docker Image including the docker client
+# Jenkins Docker Image including the docker 
+
+PRETTY_NAME: Debian GNU/Linux 12 (bookworm)
+NAME: Debian GNU/Linux
+VERSION: 12 (bookworm)
 This docker image includes the docker command to enable Jenkins to interact with a docker daemon.
 
 It includes a build of docker-compose working on alpine as well.
