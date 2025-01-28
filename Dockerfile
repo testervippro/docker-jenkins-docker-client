@@ -46,11 +46,15 @@ USER root
 
 # Install tini, su-exec, and other necessary dependencies
 RUN apt-get update && \
-    apt-get install -y tini \
+    apt-get install -y \
+    tini \
     passwd \
     curl \
+    zip \
     unzip \
+    xvfb \
     gnupg \
+    ffmpeg \
     libgtk-3-0 \
     libx11-xcb1 \
     libdbus-glib-1-2 \
@@ -59,10 +63,30 @@ RUN apt-get update && \
     libasound2 \
     bzip2 \
     wget \
+    libgtk2.0-0 \
+    libgbm-dev \
+    libnotify-dev \
+    libxss1 \
+    libxtst6 \
+    xauth \
     && curl -fsSL -o /usr/local/bin/su-exec https://github.com/tianon/gosu/releases/download/1.16/gosu-amd64 \
     && chmod +x /usr/local/bin/su-exec \
     && rm -rf /var/lib/apt/lists/*
 
+    ENV M2_HOME=/opt/apache-maven-3.9.9
+    ENV PATH="$M2_HOME/bin:$PATH"
+    
+    # Install prerequisites and Maven
+    RUN apt-get update && apt-get install -y \
+        wget \
+        tar \
+        && wget https://dlcdn.apache.org/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.tar.gz \
+        && tar -xvf apache-maven-3.9.9-bin.tar.gz \
+        && mv apache-maven-3.9.9 /opt/ \
+        && ln -s /opt/apache-maven-3.9.9/bin/mvn /usr/bin/mvn \
+        && rm -rf apache-maven-3.9.9-bin.tar.gz \
+        && apt-get clean && rm -rf /var/lib/apt/lists/*
+        
 # Firefox installation
 ARG FIREFOX_VERSION=134.0.2
 ARG GECKODRIVER_VERSION=v0.35.0
@@ -113,8 +137,26 @@ RUN curl -fsSL https://download.docker.com/linux/static/stable/x86_64/docker-20.
     && mv /tmp/docker/docker /usr/bin/docker \
     && rm -rf /tmp/docker
 
+#install docker compose
+RUN curl -L "https://github.com/docker/compose/releases/download/v2.20.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/bin/docker-compose && \
+    chmod +x /usr/bin/docker-compose    
+
+# Install nvm (Node Version Manager)
+ENV NVM_DIR /usr/local/nvm
+ENV NODE_VERSION 20.9.0
+
+RUN mkdir -p $NVM_DIR && \
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash && \
+    . $NVM_DIR/nvm.sh && \
+    nvm install $NODE_VERSION && \
+    nvm alias default $NODE_VERSION && \
+    nvm use default
+
+# Add Node.js to PATH
+ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH    
+
 # Copy the docker-compose binary from the 'cmps' stage
-COPY --from=cmps /usr/local/bin/docker-compose /usr/bin/docker-compose
+#COPY --from=cmps /usr/local/bin/docker-compose /usr/bin/docker-compose
 
 # Copy plugins.txt and config.yaml for Jenkins provisioning
 COPY plugins.txt config.yaml /provisioning/
